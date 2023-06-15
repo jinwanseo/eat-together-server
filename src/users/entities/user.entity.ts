@@ -1,12 +1,12 @@
 import { CoreEntity } from '../../common/entities/core.entity';
 import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
-import { IsEmail, IsEnum, IsString } from 'class-validator';
+import { IsEmail, IsEnum, IsNumber, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { InternalServerErrorException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 export enum UserRole {
-  Client = 'Client',
   Admin = 'Admin',
+  Client = 'Client',
 }
 
 @Entity()
@@ -30,6 +30,13 @@ export class User extends CoreEntity {
   @Column()
   @ApiProperty({ default: 'jwseo' })
   name: string;
+
+  @IsNumber()
+  @Column({
+    default: 0,
+  })
+  @ApiProperty({ default: 0 })
+  money: number;
 
   @BeforeInsert()
   @BeforeUpdate()

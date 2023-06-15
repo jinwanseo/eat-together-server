@@ -6,6 +6,8 @@ import { ReadUsersInput, ReadUsersOutput } from './dtos/read-users.dto';
 import { CreateUserInput, CreateUserOutput } from './dtos/create-user.dto';
 import { LoginUserInput, LoginUserOutput } from './dtos/login-user.dto';
 import { AuthService } from '../auth/auth.service';
+import { RemoveUserOutput } from './dtos/remove-user.dto';
+import { UpdateUserInput, UpdateUserOutput } from './dtos/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -92,6 +94,41 @@ export class UsersService {
       return {
         ok: false,
         error: error?.message ?? '로그인 처리 중 에러 발생',
+      };
+    }
+  }
+
+  async removeUser(user: User): Promise<RemoveUserOutput> {
+    try {
+      await this.users.delete(user.id);
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        error: error?.message ?? '유저 삭제 도중 에러 발생',
+      };
+    }
+  }
+
+  async updateUser(
+    user: User,
+    updateUserInput: UpdateUserInput,
+  ): Promise<UpdateUserOutput> {
+    try {
+      await this.users.save(
+        this.users.create({
+          ...user,
+          ...updateUserInput,
+          id: user.id,
+        }),
+      );
+      return { ok: true };
+    } catch (error) {
+      return {
+        ok: false,
+        error: error?.message ?? '유저 업데이트 도중 에러 발생',
       };
     }
   }

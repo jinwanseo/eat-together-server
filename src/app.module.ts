@@ -12,6 +12,8 @@ import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
 import { AuthModule } from './auth/auth.module';
 import { AuthMiddleware } from './auth/auth.middleware';
+import { OrdersModule } from './orders/orders.module';
+import { Order } from './orders/entities/order.entity';
 
 @Module({
   imports: [
@@ -36,12 +38,13 @@ import { AuthMiddleware } from './auth/auth.middleware';
       username: process.env.DB_USER,
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
-      entities: [User],
+      entities: [User, Order],
       synchronize: true,
       logging: true,
     }),
     UsersModule,
     AuthModule,
+    OrdersModule,
   ],
   controllers: [],
   providers: [],

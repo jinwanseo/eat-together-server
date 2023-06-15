@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ReadUsersInput, ReadUsersOutput } from './dtos/read-users.dto';
@@ -7,6 +15,9 @@ import { ReadUserOutput } from './dtos/read-user.dto';
 import { User } from './entities/user.entity';
 import { LoginUserInput, LoginUserOutput } from './dtos/login-user.dto';
 import { Role } from '../auth/role.decorator';
+import AuthUser from '../auth/auth.decorator';
+import { RemoveUserOutput } from './dtos/remove-user.dto';
+import { UpdateUserInput, UpdateUserOutput } from './dtos/update-user.dto';
 
 @ApiTags('회원 정보')
 @ApiBearerAuth()
@@ -29,6 +40,23 @@ export class UsersController {
     return this.userService.createUser(createUserInput);
   }
 
+  @Post('login')
+  @ApiOperation({ summary: '로그인', description: '로그인 API' })
+  loginUser(@Body() loginUserInput: LoginUserInput): Promise<LoginUserOutput> {
+    return this.userService.loginUser(loginUserInput);
+  }
+
+  @Role(['Client'])
+  @Get('me')
+  @ApiOperation({ summary: '내 정보 조회', description: '내 정보 조회 API' })
+  async me(@AuthUser() user: User): Promise<ReadUserOutput> {
+    return {
+      ok: true,
+      result: user,
+    };
+  }
+
+  @Role(['Client'])
   @Get('profile')
   @ApiOperation({ summary: '프로필 조회', description: '프로필 조회 API' })
   async profile(@Query('userId') userId: number): Promise<ReadUserOutput> {
@@ -47,9 +75,26 @@ export class UsersController {
     }
   }
 
-  @Post('login')
-  @ApiOperation({ summary: '로그인', description: '로그인 API' })
-  loginUser(@Body() loginUserInput: LoginUserInput): Promise<LoginUserOutput> {
-    return this.userService.loginUser(loginUserInput);
+  @Role(['Client'])
+  @Delete('delete')
+  @ApiOperation({
+    summary: '회원 탈퇴',
+    description: '회원 탈퇴 API (자신의 아이디만 가능)',
+  })
+  async removeUser(@AuthUser() user: User): Promise<RemoveUserOutput> {
+    return this.userService.removeUser(user);
+  }
+
+  @Role(['Client'])
+  @Patch('update')
+  @ApiOperation({
+    summary: '회원 수정',
+    description: '회원 수정 API (자신의 아이디만 가능)',
+  })
+  async editUser(
+    @AuthUser() user: User,
+    updateUserInput: UpdateUserInput,
+  ): Promise<UpdateUserOutput> {
+    return this.userService.updateUser(user, updateUserInput);
   }
 }

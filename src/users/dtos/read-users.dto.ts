@@ -9,7 +9,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export class ReadUsersInput extends PaginationInput {
   @IsString()
   @IsOptional()
-  @ApiProperty({ required: false })
+  @ApiProperty({ default: 'jw', required: false })
   keyword?: string;
 }
 
