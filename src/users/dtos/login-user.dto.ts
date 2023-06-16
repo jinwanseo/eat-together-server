@@ -10,4 +10,6 @@ export class LoginUserInput extends PickType(User, [
 export class LoginUserOutput extends CoreOutput {
   @ApiProperty()
   token?: string;
+  @ApiProperty()
+  user?: any;
 }

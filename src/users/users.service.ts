@@ -78,7 +78,7 @@ export class UsersService {
       where: {
         email,
       },
-      select: ['id', 'password'],
+      select: ['id', 'email', 'role', 'name', 'money', 'password'],
     });
     try {
       if (!user) throw new Error('로그인 유저 정보가 없습니다.');
@@ -88,6 +88,13 @@ export class UsersService {
 
       return {
         ok: true,
+        user: {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          name: user.name,
+          money: user.money,
+        },
         token,
       };
     } catch (error) {
