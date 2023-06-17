@@ -78,23 +78,22 @@ export class UsersService {
       where: {
         email,
       },
-      select: ['id', 'email', 'role', 'name', 'money', 'password'],
+      select: ['id', 'email', 'role', 'name', 'password', 'createdAt'],
     });
     try {
       if (!user) throw new Error('로그인 유저 정보가 없습니다.');
       const result: boolean = await user.comparePassword(password);
       if (!result) throw new Error('비밀번호를 다시 확인해주세요');
-      const token = this.authService.sign({ id: user.id });
+      const token = this.authService.sign({
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        name: user.name,
+        createdAt: user.createdAt,
+      });
 
       return {
         ok: true,
-        user: {
-          id: user.id,
-          email: user.email,
-          role: user.role,
-          name: user.name,
-          money: user.money,
-        },
         token,
       };
     } catch (error) {

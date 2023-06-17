@@ -1,6 +1,12 @@
 import { CoreEntity } from '../../common/entities/core.entity';
 import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
-import { IsEmail, IsEnum, IsNumber, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { InternalServerErrorException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
@@ -22,7 +28,8 @@ export class User extends CoreEntity {
   password: string;
 
   @IsEnum(UserRole)
-  @Column({ type: 'enum', enum: UserRole })
+  @IsOptional()
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.Client })
   @ApiProperty({ default: UserRole.Admin })
   role: UserRole;
 
