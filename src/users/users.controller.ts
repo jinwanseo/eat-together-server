@@ -18,12 +18,26 @@ import { Role } from '../auth/role.decorator';
 import AuthUser from '../auth/auth.decorator';
 import { RemoveUserOutput } from './dtos/remove-user.dto';
 import { UpdateUserInput, UpdateUserOutput } from './dtos/update-user.dto';
+import {
+  CheckPasswordInput,
+  CheckPasswordOutput,
+} from './dtos/check-password.dto';
 
 @ApiTags('회원 정보')
 @ApiBearerAuth()
 @Controller('users')
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
+
+  @Role(['Client'])
+  @Post('password')
+  @ApiOperation({ summary: '비밀번호 체크', description: '비밀번호 조회 API' })
+  checkUserPw(
+    @AuthUser() user: User,
+    @Body() checkPasswordInput: CheckPasswordInput,
+  ): Promise<CheckPasswordOutput> {
+    return this.userService.checkUserPw(user, checkPasswordInput);
+  }
 
   @Role(['Client'])
   @Post('list')
@@ -93,8 +107,9 @@ export class UsersController {
   })
   async editUser(
     @AuthUser() user: User,
-    updateUserInput: UpdateUserInput,
+    @Body() updateUserInput: UpdateUserInput,
   ): Promise<UpdateUserOutput> {
+    console.log(updateUserInput);
     return this.userService.updateUser(user, updateUserInput);
   }
 }

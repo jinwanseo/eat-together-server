@@ -8,6 +8,10 @@ import { LoginUserInput, LoginUserOutput } from './dtos/login-user.dto';
 import { AuthService } from '../auth/auth.service';
 import { RemoveUserOutput } from './dtos/remove-user.dto';
 import { UpdateUserInput, UpdateUserOutput } from './dtos/update-user.dto';
+import {
+  CheckPasswordInput,
+  CheckPasswordOutput,
+} from './dtos/check-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -135,6 +139,32 @@ export class UsersService {
       return {
         ok: false,
         error: error?.message ?? '유저 업데이트 도중 에러 발생',
+      };
+    }
+  }
+
+  async checkUserPw(
+    user: User,
+    checkPasswordInput: CheckPasswordInput,
+  ): Promise<CheckPasswordOutput> {
+    try {
+      const checkUser = await this.users.findOne({
+        where: { id: user.id },
+        select: ['password'],
+      });
+      if (!checkUser) throw new Error('회원 정보 없음');
+
+      const result = await checkUser.comparePassword(
+        checkPasswordInput.password,
+      );
+      return {
+        ok: true,
+        result,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        error: error?.message ?? '비밀번호 조회 도중 에러 발생',
       };
     }
   }
