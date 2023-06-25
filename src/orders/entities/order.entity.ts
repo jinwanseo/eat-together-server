@@ -38,6 +38,11 @@ export class Order extends CoreEntity {
   @ApiProperty()
   end: Address;
 
+  @IsEnum(OrderState)
+  @Column({ type: 'enum', enum: OrderState })
+  @ApiProperty()
+  state: OrderState;
+
   @ManyToOne((type) => User, (user: User) => user.orderList, {
     onDelete: 'SET NULL',
     nullable: true,
