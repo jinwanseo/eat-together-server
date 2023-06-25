@@ -29,6 +29,7 @@ import { Order } from './orders/entities/order.entity';
         DB_PASS: Joi.string().required(),
         DB_NAME: Joi.string().required(),
         JWT_SECRET: Joi.string().required(),
+        KAKAO_KEY: Joi.string().required(),
       }),
     }),
     TypeOrmModule.forRoot({

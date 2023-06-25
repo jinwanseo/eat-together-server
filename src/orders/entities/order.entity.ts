@@ -1,40 +1,18 @@
 import { CoreEntity } from '../../common/entities/core.entity';
-import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
-import {
-  IsArray,
-  IsEnum,
-  IsNumber,
-  IsObject,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
+import { IsEnum, IsNumber, IsObject, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../../users/entities/user.entity';
 
-class Menu {
+class Address {
   @IsString()
   name: string;
 
   @IsNumber()
-  price: number;
+  latitude: number;
 
-  @IsString()
-  @IsOptional()
-  option?: string;
-}
-
-class Store {
-  @IsString()
-  address: string;
-
-  @IsString()
-  addressDetail: string;
-
-  @IsString()
-  storeName: string;
-
-  @IsArray()
-  menus: Menu[];
+  @IsNumber()
+  longitude: number;
 }
 
 export enum OrderState {
@@ -48,23 +26,26 @@ export class Order extends CoreEntity {
   @IsNumber()
   @Column()
   @ApiProperty()
-  price: number;
+  pay: number;
 
   @IsObject()
   @Column({ type: 'json' })
   @ApiProperty()
-  store: Store;
+  start: Address;
 
-  @IsEnum(OrderState)
-  @Column({ type: 'enum', enum: OrderState, default: 'Ready' })
-  @ApiProperty({ default: OrderState.Ready })
-  state: OrderState;
+  @IsObject()
+  @Column({ type: 'json' })
+  @ApiProperty()
+  end: Address;
 
-  @OneToOne((type) => User, { eager: true })
+  @ManyToOne((type) => User, (user: User) => user.orderList, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
   @JoinColumn({ name: 'clientPk' })
-  client: User;
+  client?: User;
 
-  @OneToOne((type) => User, { nullable: true })
+  @ManyToOne((type) => User, (user: User) => user.todoList)
   @JoinColumn({ name: 'deliveryPk' })
-  delivery: User;
+  delivery?: User;
 }

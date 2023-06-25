@@ -1,5 +1,5 @@
 import { CoreEntity } from '../../common/entities/core.entity';
-import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from 'typeorm';
 import {
   IsEmail,
   IsEnum,
@@ -10,6 +10,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { InternalServerErrorException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import { Order } from 'src/orders/entities/order.entity';
 export enum UserRole {
   Admin = 'Admin',
   Client = 'Client',
@@ -44,6 +45,18 @@ export class User extends CoreEntity {
   })
   @ApiProperty({ default: 0 })
   money: number;
+
+  @OneToMany((type) => Order, (order: Order) => order.client, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  orderList: Order[];
+
+  @OneToMany((type) => Order, (order: Order) => order.delivery, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  todoList: Order[];
 
   @BeforeInsert()
   @BeforeUpdate()
