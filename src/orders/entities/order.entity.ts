@@ -46,6 +46,7 @@ export class Order extends CoreEntity {
   @ManyToOne((type) => User, (user: User) => user.orderList, {
     onDelete: 'SET NULL',
     nullable: true,
+    eager: true,
   })
   @JoinColumn({ name: 'clientPk' })
   client?: User;

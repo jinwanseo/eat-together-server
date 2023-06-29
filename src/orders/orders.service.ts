@@ -6,6 +6,7 @@ import { CreateOrderInput, CreateOrderOutput } from './dtos/create-order.dto';
 import { User } from '../users/entities/user.entity';
 import { ReadOrdersOutput } from './dtos/read-orders.dto';
 import { ConfigService } from '@nestjs/config';
+import { OrdersGateway } from './orders.gateway';
 
 type LocationType = {
   name?: string;
@@ -18,6 +19,8 @@ export class OrdersService {
   constructor(
     private readonly config: ConfigService,
     @InjectRepository(Order) private readonly orders: Repository<Order>,
+    @InjectRepository(User) private readonly users: Repository<User>,
+    private readonly ordersGateway: OrdersGateway,
   ) {}
 
   /**
@@ -52,7 +55,7 @@ export class OrdersService {
       start.name = startCity;
       end.name = endCity;
 
-      await this.orders.save(
+      const order = await this.orders.save(
         this.orders.create({
           client,
           pay,
@@ -61,6 +64,9 @@ export class OrdersService {
           state: OrderState.Ready,
         }),
       );
+
+      // socket 전송
+      this.ordersGateway.addOrder(order);
 
       return {
         ok: true,
@@ -77,6 +83,7 @@ export class OrdersService {
     try {
       const [results, total] = await this.orders.findAndCount({
         where: { state: OrderState.Ready },
+        order: { createdAt: 'DESC' },
       });
       return {
         ok: true,

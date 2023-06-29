@@ -13,11 +13,10 @@ export class OrdersGateway {
 
   @SubscribeMessage('order')
   handleOrder(@MessageBody() order: any): void {
-    if (order.data === 'order') {
-      console.log(order);
-      // this.server.emit('order', { data:  });
-    } else if (order.data === 'me') {
-      this.server.emit('order', { data: 'jinwan' });
-    }
+    this.server.emit('order', order);
+  }
+
+  addOrder(order: any) {
+    this.server.emit('order', { data: order });
   }
 }
