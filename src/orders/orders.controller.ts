@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { User } from '../users/entities/user.entity';
@@ -7,6 +7,7 @@ import AuthUser from '../auth/auth.decorator';
 import { CreateUserOutput } from '../users/dtos/create-user.dto';
 import { ReadOrdersOutput } from './dtos/read-orders.dto';
 import { CreateOrderInput } from './dtos/create-order.dto';
+import { AcceptOrderOutput } from './dtos/accept-order.dto';
 
 @ApiTags('주문 관리')
 @ApiBearerAuth()
@@ -39,6 +40,21 @@ export class OrdersController {
   async getOrders(): Promise<ReadOrdersOutput> {
     return this.orderService.getOrders();
   }
+
+  // Accept Order
+  @Role(['Client'])
+  @Get('accept/:orderId')
+  @ApiOperation({
+    summary: '주문 수락',
+    description: '주문 수락 API',
+  })
+  acceptOrder(
+    @AuthUser() user: User,
+    @Param('orderId') orderId: number,
+  ): Promise<AcceptOrderOutput> {
+    return this.orderService.acceptOrder(user, orderId);
+  }
+
   // 내가 신청한 주문 리스트 조회
 
   // 이전 주문 내역 조회
