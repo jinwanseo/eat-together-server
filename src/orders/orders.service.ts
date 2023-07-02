@@ -101,13 +101,14 @@ export class OrdersService {
 
   async acceptOrder(user: User, orderId: number): Promise<AcceptOrderOutput> {
     const order = await this.orders.findOne({ where: { id: orderId } });
+
     if (!order)
       throw new HttpException(
         '수락한 주문이 조회되지 않습니다. 수락한 주문 pk 재 확인',
         HttpStatus.BAD_REQUEST,
       );
 
-    if (order.state !== OrderState.Start) {
+    if (order.state !== OrderState.Ready) {
       if (order?.delivery?.id === user.id) {
         throw new HttpException(
           '이미 수락한 주문건 입니다.',
@@ -125,6 +126,7 @@ export class OrdersService {
       this.orders.create({
         ...order,
         state: OrderState.Start,
+        delivery: user,
       }),
     );
 

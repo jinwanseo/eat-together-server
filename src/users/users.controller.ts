@@ -109,7 +109,6 @@ export class UsersController {
     @AuthUser() user: User,
     @Body() updateUserInput: UpdateUserInput,
   ): Promise<UpdateUserOutput> {
-    console.log(updateUserInput);
     return this.userService.updateUser(user, updateUserInput);
   }
 }

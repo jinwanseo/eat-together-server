@@ -57,5 +57,5 @@ export class OrdersController {
 
   // 내가 신청한 주문 리스트 조회
 
-  // 이전 주문 내역 조회
+  // 이전 주문 내역 조
 }
