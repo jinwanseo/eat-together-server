@@ -48,7 +48,14 @@ export class OrdersService {
 
   async createOrder(
     client: User,
-    { startAddress, startCity, endAddress, endCity, pay }: CreateOrderInput,
+    {
+      startAddress,
+      title,
+      startCity,
+      endAddress,
+      endCity,
+      pay,
+    }: CreateOrderInput,
   ): Promise<CreateOrderOutput> {
     try {
       const start: LocationType = await this.getLocationData(startAddress);
@@ -59,6 +66,7 @@ export class OrdersService {
       const order = await this.orders.save(
         this.orders.create({
           client,
+          title,
           pay,
           start,
           end,

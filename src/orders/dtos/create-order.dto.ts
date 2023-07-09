@@ -10,6 +10,10 @@ export class CreateOrderInput extends PickType(Order, ['pay']) {
 
   @IsString()
   @ApiProperty()
+  title: string;
+
+  @IsString()
+  @ApiProperty()
   startCity: string;
 
   @IsString()

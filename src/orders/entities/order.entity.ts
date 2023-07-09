@@ -28,6 +28,11 @@ export class Order extends CoreEntity {
   @ApiProperty()
   pay: number;
 
+  @IsString()
+  @Column()
+  @ApiProperty()
+  title: string;
+
   @IsObject()
   @Column({ type: 'json' })
   @ApiProperty()
