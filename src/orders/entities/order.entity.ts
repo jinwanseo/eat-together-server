@@ -1,8 +1,9 @@
 import { CoreEntity } from '../../common/entities/core.entity';
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { IsEnum, IsNumber, IsObject, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../../users/entities/user.entity';
+import Like from './like.entity';
 
 class Address {
   @IsString()
@@ -59,4 +60,7 @@ export class Order extends CoreEntity {
   @ManyToOne((type) => User, (user: User) => user.todoList)
   @JoinColumn({ name: 'deliveryPk' })
   delivery?: User;
+
+  @OneToMany((type) => Like, (like: Like) => like.order)
+  likes: Like[];
 }

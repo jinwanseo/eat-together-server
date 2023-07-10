@@ -8,6 +8,7 @@ import { CreateUserOutput } from '../users/dtos/create-user.dto';
 import { ReadOrdersOutput } from './dtos/read-orders.dto';
 import { CreateOrderInput } from './dtos/create-order.dto';
 import { AcceptOrderOutput } from './dtos/accept-order.dto';
+import { ToggleLikeOutput } from './dtos/toggle-like.dto';
 
 @ApiTags('주문 관리')
 @ApiBearerAuth()
@@ -58,4 +59,18 @@ export class OrdersController {
   // 내가 신청한 주문 리스트 조회
 
   // 이전 주문 내역 조
+
+  // 좋아요, 좋아요 취소
+  @Role(['Client'])
+  @Get('like')
+  @ApiOperation({
+    summary: '좋아요, 좋아요 취소',
+    description: '좋아요, 좋아요 취소 API',
+  })
+  toggleLike(
+    @AuthUser() user: User,
+    @Param('orderId') orderId: number,
+  ): Promise<ToggleLikeOutput> {
+    return this.orderService.toggleLike(user, orderId);
+  }
 }

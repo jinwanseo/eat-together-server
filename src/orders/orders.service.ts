@@ -8,6 +8,8 @@ import { ReadOrdersOutput } from './dtos/read-orders.dto';
 import { ConfigService } from '@nestjs/config';
 import { OrdersGateway } from './orders.gateway';
 import { AcceptOrderOutput } from './dtos/accept-order.dto';
+import { ToggleLikeOutput } from './dtos/toggle-like.dto';
+import Like from './entities/like.entity';
 
 type LocationType = {
   name?: string;
@@ -21,6 +23,7 @@ export class OrdersService {
     private readonly config: ConfigService,
     @InjectRepository(Order) private readonly orders: Repository<Order>,
     @InjectRepository(User) private readonly users: Repository<User>,
+    @InjectRepository(Like) private readonly likes: Repository<Like>,
     private readonly ordersGateway: OrdersGateway,
   ) {}
 
@@ -141,5 +144,18 @@ export class OrdersService {
     return {
       ok: true,
     };
+  }
+
+  async toggleLike(user: User, orderId: number): Promise<ToggleLikeOutput> {
+    const like = await this.likes.findOne({
+      where: {
+        user: {
+          id: user.id,
+        },
+        order: {
+          id: orderId,
+        },
+      },
+    });
   }
 }

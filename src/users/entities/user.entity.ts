@@ -11,6 +11,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { InternalServerErrorException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Order } from 'src/orders/entities/order.entity';
+import Like from 'src/orders/entities/like.entity';
 export enum UserRole {
   Admin = 'Admin',
   Client = 'Client',
@@ -57,6 +58,9 @@ export class User extends CoreEntity {
     nullable: true,
   })
   todoList: Order[];
+
+  @OneToMany((type) => Like, (like: Like) => like.user)
+  likes: Like[];
 
   @BeforeInsert()
   @BeforeUpdate()
