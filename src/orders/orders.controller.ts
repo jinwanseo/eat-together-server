@@ -9,6 +9,8 @@ import { ReadOrdersOutput } from './dtos/read-orders.dto';
 import { CreateOrderInput } from './dtos/create-order.dto';
 import { AcceptOrderOutput } from './dtos/accept-order.dto';
 import { ToggleLikeOutput } from './dtos/toggle-like.dto';
+import { AddChatInput, AddChatOutput } from './dtos/add-chat.dto';
+import { ReadMyChatsOutput } from './dtos/read-mychat.dto';
 
 @ApiTags('주문 관리')
 @ApiBearerAuth()
@@ -62,7 +64,7 @@ export class OrdersController {
 
   // 좋아요, 좋아요 취소
   @Role(['Client'])
-  @Get('like')
+  @Get('like/:orderId')
   @ApiOperation({
     summary: '좋아요, 좋아요 취소',
     description: '좋아요, 좋아요 취소 API',
@@ -72,5 +74,30 @@ export class OrdersController {
     @Param('orderId') orderId: number,
   ): Promise<ToggleLikeOutput> {
     return this.orderService.toggleLike(user, orderId);
+  }
+
+  // 채팅 추가
+  @Role(['Client'])
+  @Post('chat')
+  @ApiOperation({
+    summary: '채팅 추가',
+    description: '채팅 추가 API',
+  })
+  addChat(
+    @AuthUser() user: User,
+    @Body() addChatInput: AddChatInput,
+  ): Promise<AddChatOutput> {
+    return this.orderService.addChat(user, addChatInput);
+  }
+
+  // 내 채팅 리스트
+  @Role(['Client'])
+  @Get('chat/me')
+  @ApiOperation({
+    summary: '내 채팅 조회',
+    description: '내 채팅 조회 API',
+  })
+  myChatList(@AuthUser() user: User): Promise<ReadMyChatsOutput> {
+    return this.orderService.myChatList(user);
   }
 }

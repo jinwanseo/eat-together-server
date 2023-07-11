@@ -1,5 +1,12 @@
 import { CoreEntity } from '../../common/entities/core.entity';
-import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from 'typeorm';
+import {
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  Entity,
+  ManyToMany,
+  OneToMany,
+} from 'typeorm';
 import {
   IsEmail,
   IsEnum,
@@ -12,6 +19,8 @@ import { InternalServerErrorException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Order } from 'src/orders/entities/order.entity';
 import Like from 'src/orders/entities/like.entity';
+import { Chat } from 'src/orders/entities/chat.entity';
+import { Room } from 'src/orders/entities/room.entity';
 export enum UserRole {
   Admin = 'Admin',
   Client = 'Client',
@@ -61,6 +70,18 @@ export class User extends CoreEntity {
 
   @OneToMany((type) => Like, (like: Like) => like.user)
   likes: Like[];
+
+  @OneToMany((type) => Chat, (chat: Chat) => chat.user, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  chatList?: Chat[];
+
+  @ManyToMany((type) => Room, (room: Room) => room.userList, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  roomList?: Room[];
 
   @BeforeInsert()
   @BeforeUpdate()

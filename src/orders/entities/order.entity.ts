@@ -1,9 +1,19 @@
 import { CoreEntity } from '../../common/entities/core.entity';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { IsEnum, IsNumber, IsObject, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../../users/entities/user.entity';
 import Like from './like.entity';
+import { Chat } from './chat.entity';
+import { Room } from './room.entity';
 
 class Address {
   @IsString()
@@ -63,4 +73,10 @@ export class Order extends CoreEntity {
 
   @OneToMany((type) => Like, (like: Like) => like.order)
   likes: Like[];
+
+  @OneToMany((type) => Chat, (chat: Chat) => chat.room, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  roomList?: Room[];
 }

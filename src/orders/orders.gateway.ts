@@ -11,12 +11,15 @@ export class OrdersGateway {
   @WebSocketServer()
   server: Server;
 
-  @SubscribeMessage('order')
-  handleOrder(@MessageBody() order: any): void {
-    this.server.emit('order', order);
-  }
+  // @SubscribeMessage('order')
+  // handleOrder(@MessageBody() order: any): void {
+  //   this.server.emit('order', order);
+  // }
 
   addOrder(order: any) {
     this.server.emit('order', { data: order });
+  }
+  addChat(room: any) {
+    this.server.emit(`chat-${room.id}`);
   }
 }

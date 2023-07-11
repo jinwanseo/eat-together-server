@@ -15,6 +15,8 @@ import { AuthMiddleware } from './auth/auth.middleware';
 import { OrdersModule } from './orders/orders.module';
 import { Order } from './orders/entities/order.entity';
 import Like from './orders/entities/like.entity';
+import { Chat } from './orders/entities/chat.entity';
+import { Room } from './orders/entities/room.entity';
 
 @Module({
   imports: [
@@ -40,7 +42,7 @@ import Like from './orders/entities/like.entity';
       username: process.env.DB_USER,
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
-      entities: [User, Order, Like],
+      entities: [User, Order, Like, Chat, Room],
       synchronize: true,
       logging: true,
     }),

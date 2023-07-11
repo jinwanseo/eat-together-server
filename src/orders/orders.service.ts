@@ -10,6 +10,10 @@ import { OrdersGateway } from './orders.gateway';
 import { AcceptOrderOutput } from './dtos/accept-order.dto';
 import { ToggleLikeOutput } from './dtos/toggle-like.dto';
 import Like from './entities/like.entity';
+import { Chat } from './entities/chat.entity';
+import { AddChatInput, AddChatOutput } from './dtos/add-chat.dto';
+import { Room } from './entities/room.entity';
+import { ReadMyChatsOutput } from './dtos/read-mychat.dto';
 
 type LocationType = {
   name?: string;
@@ -24,6 +28,8 @@ export class OrdersService {
     @InjectRepository(Order) private readonly orders: Repository<Order>,
     @InjectRepository(User) private readonly users: Repository<User>,
     @InjectRepository(Like) private readonly likes: Repository<Like>,
+    @InjectRepository(Chat) private readonly chats: Repository<Chat>,
+    @InjectRepository(Room) private readonly rooms: Repository<Room>,
     private readonly ordersGateway: OrdersGateway,
   ) {}
 
@@ -94,9 +100,13 @@ export class OrdersService {
   async getOrders(): Promise<ReadOrdersOutput> {
     try {
       const [results, total] = await this.orders.findAndCount({
-        where: { state: OrderState.Ready },
+        // where: { state: OrderState.Ready },
         order: { createdAt: 'DESC' },
+        loadRelationIds: {
+          relations: ['likes'],
+        },
       });
+
       return {
         ok: true,
         results,
@@ -147,6 +157,14 @@ export class OrdersService {
   }
 
   async toggleLike(user: User, orderId: number): Promise<ToggleLikeOutput> {
+    const order = await this.orders.findOne({
+      where: {
+        id: orderId,
+      },
+    });
+
+    if (!order) throw new HttpException('주문 확인 불가', HttpStatus.NOT_FOUND);
+
     const like = await this.likes.findOne({
       where: {
         user: {
@@ -157,5 +175,113 @@ export class OrdersService {
         },
       },
     });
+
+    try {
+      if (!like) {
+        await this.likes.save(
+          this.likes.create({
+            user,
+            order,
+          }),
+        );
+      } else {
+        await this.likes.delete(like.id);
+      }
+
+      return {
+        ok: true,
+      };
+    } catch {
+      throw new HttpException(
+        '찜 / 찜 취소 도중 에러 발생',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async addChat(
+    user: User,
+    { orderId, message }: AddChatInput,
+  ): Promise<AddChatOutput> {
+    // 주문 검증
+    const order = await this.orders.findOne({ where: { id: orderId } });
+    if (!order)
+      throw new HttpException(
+        '주문 정보 조회 실패, (주문번호 확인 요망)',
+        HttpStatus.NOT_FOUND,
+      );
+
+    // 유저 검증 (자신이 업로드한 글에 직접 채팅 시도시 x)
+    if (user.id === order.client.id)
+      throw new HttpException(
+        '직접 등록한 주문에 채팅 불가',
+        HttpStatus.BAD_REQUEST,
+      );
+
+    // 채팅방 확인
+    let room = await this.rooms.findOne({
+      where: {
+        order: {
+          id: order.id,
+        },
+        userList: {
+          id: user.id,
+        },
+      },
+    });
+
+    // 채팅방 없을시 채팅방 개설
+    if (!room) {
+      room = await this.rooms.save(
+        this.rooms.create({
+          userList: [user, order.client],
+          order,
+          chatList: [],
+        }),
+      );
+    }
+
+    // 채팅 추가
+    const newChat: Chat = await this.chats.save(
+      this.chats.create({
+        message,
+        user,
+        room,
+      }),
+    );
+
+    if (!newChat)
+      throw new HttpException(
+        '채팅 업로드 중 실패',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+
+    // 채팅방에 채팅 연결 및 저장
+    room.chatList.push(newChat);
+    await this.rooms.save(
+      this.rooms.create({
+        ...room,
+      }),
+    );
+
+    return {
+      ok: true,
+    };
+  }
+
+  async myChatList(user: User): Promise<ReadMyChatsOutput> {
+    const [results, total] = await this.rooms.findAndCount({
+      where: {
+        userList: {
+          id: user.id,
+        },
+      },
+    });
+
+    return {
+      ok: true,
+      results,
+      total,
+    };
   }
 }
